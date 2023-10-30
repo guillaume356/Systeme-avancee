@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
         // Ouvrir un fichier temporaire pour écrire la sortie
         int fd = mkstemp("/tmp/proc-exercise");
 
+        // TODO : Fix file access
+
         if (fd == -1)
         {
             perror("Erreur d'ouverture du fichier");
