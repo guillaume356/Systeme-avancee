@@ -1,62 +1,34 @@
-CC=gcc
-CFLAGS=-Wall -c
-LDFLAGS=-I ./include/
+# Makefile TP
 
-SRC_DIR=./src
-INC_DIR=./include
-BIN_DIR=./bin
-DOC_DIR=./doc
-GCOV_DIR=./gcov
+# Compiler
+CC = gcc
 
-GCOVFLAGS=-O0 --coverage -lgcov -Wall -g
+# Compiler flags
+CFLAGS = -Wall -g
 
-LCOV_REPORT=report.info
+# Directories
+SRC_DIR = src
+BIN_DIR = bin
 
-SRC=$(wildcard $(SRC_DIR)/*.c)
-OBJ=$(SRC:.c=.o)
-EXEC=exo1
+# Source files
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 
-GEXEC=$(EXEC).cov
+# Object files in src directory
+OBJ_FILES_SRC = $(patsubst $(SRC_DIR)/%.c, $(SRC_DIR)/%.o, $(SRC_FILES))
 
-AR_NAME=archive_$(EXEC).tar.gz
+# Object files in bin directory
+OBJ_FILES_BIN = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(SRC_FILES))
 
+# Targets
+all: $(OBJ_FILES_SRC) $(OBJ_FILES_BIN)
 
-all: $(SRC) $(EXEC)
-    
-%.o:%.c
-	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(EXEC): $(OBJ) 
-	$(CC) -o $(BIN_DIR)/$@ -Wall $(LDFLAGS) $(OBJ)
+$(BIN_DIR)/%: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -o $@ $<
 
-$(GEXEC):
-	$(CC) $(GCOVFLAGS) -o $(GCOV_DIR)/$@ -Wall $(LDFLAGS) $(SRC)
+clean:
+	rm -f $(SRC_DIR)/*.o $(BIN_DIR)/*
 
-doc:
-	doxygen $(DOC_DIR)/doxygen.conf
-
-gcov: $(GEXEC)
-	# generate some data for gcov by calling the generated binary with various options
-	$(GCOV_DIR)/$(GEXEC) -h
-	$(GCOV_DIR)/$(GEXEC) -i input -o output -v
-
-	find ./ -maxdepth 1 -name *.gcno -exec mv {} $(GCOV_DIR) \;
-	find ./ -maxdepth 1 -name *.gcda -exec mv {} $(GCOV_DIR) \;
-
-	gcov -o $(GCOV_DIR) $(GEXEC)
-	lcov -o $(GCOV_DIR)/$(LCOV_REPORT) -c -f -d $(GCOV_DIR)
-	genhtml -o $(GCOV_DIR)/report $(GCOV_DIR)/$(LCOV_REPORT)
-
-package: gcov doc all
-	rm -rf $(AR_NAME)
-	tar cvfz $(AR_NAME) ./*
-clean:	
-	rm -rf $(OBJ)
-
-mrproper: clean
-	rm -rf $(BIN_DIR)/*
-	rm -rf $(DOC_DIR)/latex/
-	rm -rf $(DOC_DIR)/html/
-	rm -rf $(GCOV_DIR)/*
-
-.PHONY: doc
+.PHONY: all clean
