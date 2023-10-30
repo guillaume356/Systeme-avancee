@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -38,31 +39,29 @@ int main(int argc, char *argv[])
         // Nous sommes dans le processus fils
         printf("Je suis le processus fils avec PID %d\n", getpid());
 
-        // Ouvrir un fichier temporaire pour écrire la sortie
-        int fd = mkstemp("/tmp/proc-exercise");
+            // Ouvrir un fichier temporaire pour écrire la sortie
+            int fd = mkstemp("tmp/proc-exerciseXXXXXX");
 
-        // TODO : Fix file access
+            if (fd == -1)
+            {
+                perror("Erreur d'ouverture du fichier");
+                return 1;
+            }
 
-        if (fd == -1)
-        {
-            perror("Erreur d'ouverture du fichier");
-            return 1;
+            // Rediriger la sortie standard (STDOUT) vers le fichier
+            if (dup2(fd, 1) == -1)
+            {
+                perror("Erreur de redirection de descripteur");
+                return 1;
+            }
+
+            // Fermer le descripteur dupliqué
+            close(fd);
+
+            // Exécuter la commande passée en paramètre
+            execlp(argv[1], argv[1], NULL);
+            perror("Erreur d'exécution");
         }
-
-        // Rediriger la sortie standard (STDOUT) vers le fichier
-        if (dup2(fd, 1) == -1)
-        {
-            perror("Erreur de redirection de descripteur");
-            return 1;
-        }
-
-        // Fermer le descripteur dupliqué
-        close(fd);
-
-        // Exécuter la commande passée en paramètre
-        execlp(argv[1], argv[1], NULL);
-        perror("Erreur d'exécution");
-    }
     else
     {
         printf("PID du père : %d\n", getpid());
