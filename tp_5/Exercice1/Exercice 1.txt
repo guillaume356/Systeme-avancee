@@ -1,0 +1,17 @@
+Exercice 1
+
+Commande pour récupérer la dernière image de jenkins :
+
+docker pull jenkins/jenkins:lts
+
+
+Commande pour démarrer le service jenkins en local sur le port 8080 avec pour nom jenkins :
+
+docker run -d -p 8080:8080 --name jenkins jenkins/jenkins:lts
+
+
+Commandes pour stopper et redémarrer le service :
+
+docker stop jenkins
+
+docker start jenkins
