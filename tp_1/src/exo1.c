@@ -1,12 +1,4 @@
-/**
- * \file skeleton.c
- * \brief Exemple basique de parsing d'options.
- * \author Pierre L. <pierre1.leroy@orange.com>
- * \version 0.1
- * \date 10 septembre 2016
- *
- * Exemple basique de parsing d'options avec un fichier C.
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
