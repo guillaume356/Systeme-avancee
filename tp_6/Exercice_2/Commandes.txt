@@ -1,0 +1,25 @@
+# Télécharger les dernières images de MySql et Wordpress
+
+docker pull mysql
+docker pull wordpress
+
+# Création du fichier docker-compose.yml
+
+
+# Création de la bdd wordpress db
+
+docker-compose exec db mysql -u root -p
+CREATE DATABASE wordpressdb
+
+
+# Démarrage du docker-compose
+
+docker-compose up -d
+
+# Vérification du bon fonctionnement de wordpress
+
+(Voir photos dans l'ordre)
+1. lancement_de_wordpress.png (lancement de wordpress sur localhost 8000)
+2. Creation_compte_wordpress.png
+3. compte_dans_la_bdd.png
+4. Acces_a_wordpress.png (Dashboard de wordpress après connexion)
