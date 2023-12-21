@@ -1,0 +1,12 @@
+# Récupération de tomcat 9.0.43
+
+docker pull tomcat:9.0.43
+
+# Après récupération sur docker hub de jenkins.war et de la création du dockerfile, construction de l'image
+
+docker build -t mon-jenkins .
+
+# Lancement de l'image sur le port 8080
+docker run -p 8080:8080 mon-jenkins
+
+
