@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -19,6 +18,7 @@ void handle_sigterm() {
 }
 
 int main() {
+    
     printf("Le PID de ce processus est %d\n", getpid());
     // Associer le gestionnaire de signaux 'signal_handler' aux signaux SIGINT et SIGTERM.
     signal(SIGINT, handle_sigint);

@@ -1,0 +1,11 @@
+
+
+docker build -t my-jenkins-tomcat .
+
+
+docker run -p 8080:8080 my-jenkins-tomcat
+
+
+docker start fff
+
+docker stop fff
