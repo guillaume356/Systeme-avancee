@@ -2,17 +2,45 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 int main() {
+    FILE *fichier_historique;
+    const char *chemin_historique = "/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/historique.txt";
+    char *commande;
+
     while (1) {
-        printf("mini-shell> ");
+        commande = readline("mini-shell> ");
+        if (!commande) break; // Sortie si commande est NULL (Ctrl+D)
 
-        char commande[100];
-        fgets(commande, sizeof(commande), stdin);
-        commande[strcspn(commande, "\n")] = '\0';
+        // Ajouter la commande à l'historique de readline
+        if (strlen(commande) > 0) {
+            add_history(commande);
 
-        // Commande 'exit'
-        if (strcmp(commande, "exit") == 0) {
+            // Enregistrer la commande dans le fichier d'historique
+            fichier_historique = fopen(chemin_historique, "a");
+            if (fichier_historique != NULL) {
+                fprintf(fichier_historique, "%s\n", commande);
+                fclose(fichier_historique);
+            }
+        }
+
+        // Commande 'historique' pour afficher l'historique des commandes
+        if (strcmp(commande, "historique") == 0) {
+            char ligne[100];
+            FILE *fichier = fopen(chemin_historique, "r");
+            if (fichier) {
+                while (fgets(ligne, sizeof(ligne), fichier)) {
+                    printf("%s", ligne);
+                }
+                fclose(fichier);
+            } else {
+                perror("Erreur en lisant l'historique");
+            }
+        }
+            // Commande 'exit'
+        else if (strcmp(commande, "exit") == 0) {
             printf("Fermeture de l'interpréteur.\n");
             break;
         }
@@ -45,6 +73,9 @@ int main() {
         }
         else if (strcmp(commande, "who") == 0) {
             system("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/who");
+        }
+        else if (strcmp(commande, "ps") == 0) {
+            system("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ps");
         }
         else {
             printf("%s: command not found\n", commande);
