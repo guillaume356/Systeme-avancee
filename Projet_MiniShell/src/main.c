@@ -2,8 +2,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+
+int executerLsPersonnalise(char *commande) {
+    char *argv[64]; // Tableau pour stocker les arguments de la commande
+    int argc = 0;
+
+    // Tokenisation de la commande
+    char *token = strtok(commande, " ");
+    while (token != NULL && argc < 63) {
+        argv[argc++] = token;
+        token = strtok(NULL, " ");
+    }
+    argv[argc] = NULL; // Dernier élément doit être NULL pour execvp
+
+    if (argc == 0) {
+        return -1; // Pas de commande à exécuter
+    }
+
+    // Exécution de la commande
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Processus enfant
+        execvp("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ls", argv);
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+        // Processus parent
+        int status;
+        waitpid(pid, &status, 0);
+        return status;
+    } else {
+        // Échec de fork
+        perror("fork");
+        return -1;
+    }
+}
 
 int main() {
     FILE *fichier_historique;
@@ -65,8 +101,8 @@ int main() {
             printf("%s\n", commande + 5);
         }
             // Commandes externes
-        else if (strcmp(commande, "ls") == 0) {
-            system("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ls");
+        if (strncmp(commande, "ls", 2) == 0) {
+            executerLsPersonnalise(commande);
         }
         else if (strcmp(commande, "date") == 0) {
             system("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/date");
@@ -77,10 +113,8 @@ int main() {
         else if (strcmp(commande, "ps") == 0) {
             system("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ps");
         }
-        else {
-            printf("%s: command not found\n", commande);
-        }
-    }
 
+        free(commande);
+    }
     return 0;
 }
