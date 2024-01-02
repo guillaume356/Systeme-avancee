@@ -1,16 +1,18 @@
+// who.c
+#include "who.h"
 #include <utmp.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
-int main() {
+void listerUtilisateurs() {
     int fd = open(_PATH_UTMP, O_RDONLY);
     struct utmp entry;
 
     if (fd < 0) {
         perror("Erreur lors de l'ouverture du fichier utmp");
-        return 1;
+        return;
     }
 
     while (read(fd, &entry, sizeof(entry)) > 0) {
@@ -22,5 +24,9 @@ int main() {
     }
 
     close(fd);
+}
+
+int main() {
+    listerUtilisateurs();
     return 0;
 }

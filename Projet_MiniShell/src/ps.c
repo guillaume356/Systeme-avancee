@@ -1,8 +1,10 @@
+// ps.c
+#include "ps.h"
 #include <stdio.h>
 #include <dirent.h>
 #include <stdlib.h>
 
-int main() {
+void listerProcessus() {
     DIR *dir;
     struct dirent *ent;
 
@@ -22,6 +24,9 @@ int main() {
     } else {
         perror("Erreur en ouvrant /proc");
     }
+}
 
+int main() {
+    listerProcessus();
     return 0;
 }
