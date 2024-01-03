@@ -8,40 +8,6 @@
 #include <errno.h> // Pour l'utilisation de errno dans la gestion d'erreurs
 #include <string.h> // Pour strerror pour convertir errno en message d'erreur
 
-int executerLsPersonnalise(char *commande) {
-    char *argv[64]; // Tableau pour stocker les arguments de la commande
-    int argc = 0;
-
-    // Tokenisation de la commande
-    char *token = strtok(commande, " ");
-    while (token != NULL && argc < 63) {
-        argv[argc++] = token;
-        token = strtok(NULL, " ");
-    }
-    argv[argc] = NULL; // Dernier élément doit être NULL pour execvp
-
-    if (argc == 0) {
-        return -1; // Pas de commande à exécuter
-    }
-
-    // Exécution de la commande
-    pid_t pid = fork();
-    if (pid == 0) {
-        // Processus enfant
-        execvp("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ls", argv);
-        perror("execvp");
-        exit(EXIT_FAILURE);
-    } else if (pid > 0) {
-        // Processus parent
-        int status;
-        waitpid(pid, &status, 0);
-        return status;
-    } else {
-        // Échec de fork
-        perror("fork");
-        return -1;
-    }
-}
 
 int main() {
     // Chemin vers le fichier d'historique des commandes
@@ -125,7 +91,6 @@ int main() {
             // Traitement de la commande saisie
             parse_and_execute(commande);
         }
-<<<<<<< HEAD
             // Commandes externes
         if (strncmp(commande, "ls", 2) == 0) {
             executerLsPersonnalise(commande);

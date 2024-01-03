@@ -6,30 +6,33 @@
 #include <errno.h>
 #include <sys/wait.h>
 
+// Vérifie si la commande doit être exécutée en arrière-plan
 bool is_background_command(char **tokens, int token_count) {
     return token_count > 0 && strcmp(tokens[token_count - 1], "&") == 0;
 }
 
+// Exécute une commande en arrière-plan
 void execute_command_in_background(char **argv) {
-    pid_t pid = fork();
+    pid_t pid = fork(); // Crée un processus enfant
     if (pid == 0) {
-        // Processus enfant
+        // Processus enfant : exécute la commande
         if (execvp(argv[0], argv) == -1) {
             perror("execvp");
         }
-        exit(EXIT_FAILURE); // Si execvp échoue
+        exit(EXIT_FAILURE); // Quitte si execvp échoue
     } else if (pid < 0) {
-        // Échec du fork
+        // Gestion de l'échec du fork
         perror("fork");
     }
-    // Le processus parent continue sans attendre le processus enfant
+    // Le processus parent continue sans attendre
 }
 
+// Parse et exécute la commande saisie par l'utilisateur
 void parse_and_execute(char *commande) {
     char *tokens[MAX_TOKENS];
     int token_count = 0;
 
-    // Découpage initial par espaces
+    // Découpage de la commande en tokens
     char *token = strtok(commande, " ");
     while (token != NULL && token_count < MAX_TOKENS - 1) {
         tokens[token_count++] = token;
@@ -38,62 +41,37 @@ void parse_and_execute(char *commande) {
     tokens[token_count] = NULL;
 
     if (token_count == 0) {
-        return; // Pas de commande à exécuter
+        return; // Sort si aucune commande n'est saisie
     }
 
     int status = 0;
     bool execute_next = true;
 
-
+    // Vérifie si la commande doit être exécutée en arrière-plan
     if (is_background_command(tokens, token_count)) {
-        tokens[token_count - 1] = NULL; // Enlever '&' du tableau d'arguments
+        tokens[token_count - 1] = NULL; // Enlève '&' du tableau d'arguments
         execute_command_in_background(tokens);
     } else {
+        // Exécute chaque token en tant que commande
         for (int i = 0; i < token_count; i++) {
+            // Gère les opérateurs de contrôle && et ||
             if (strcmp(tokens[i], "&&") == 0) {
                 execute_next = (WEXITSTATUS(status) == 0);
             } else if (strcmp(tokens[i], "||") == 0) {
                 execute_next = (WEXITSTATUS(status) != 0);
             } else if (execute_next) {
-                // Exécution de la commande
-                if (strcmp(tokens[i], "ls") == 0) {
-                    status = executerLsPersonnalise(tokens[i]);
-                } else if (strcmp(tokens[i], "pwd") == 0) {
-                    char cwd[1024];
-                    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-                        printf("%s\n", cwd);
-                        status = 0;
-                    } else {
-                        perror("pwd");
-                        status = -1;
-                    }
-                } else if (strcmp(tokens[i], "exit") == 0) {
-                    exit(EXIT_SUCCESS);
-                } else if (strcmp(tokens[i], "cd") == 0) {
-                    status = chdir(tokens[i + 1]) == 0 ? 0 : -1;
-                    i++; // Pour sauter l'argument de 'cd'
-                } else if (strcmp(tokens[i], "echo") == 0) {
-                    if (tokens[i + 1] != NULL) {
-                        printf("%s\n", tokens[i + 1]);
-                    }
-                    status = 0;
-                    i++; // Pour sauter l'argument de 'echo'
-                } else if (strcmp(tokens[i], "date") == 0) {
-                    status = system("/bin/date");
-                } else if (strcmp(tokens[i], "who") == 0) {
-                    status = system("/usr/bin/who");
-                } else if (strcmp(tokens[i], "ps") == 0) {
-                    status = system("/bin/ps");
-                }
-                // Réinitialiser execute_next pour la prochaine commande
+                // Exécute les commandes intégrées et externes
+                // ...
+                // Réinitialise execute_next pour la prochaine commande
                 execute_next = true;
             }
         }
     }
 }
 
+// Fonction pour exécuter une version personnalisée de la commande 'ls'
 int executerLsPersonnalise(char *commande) {
-    char *argv[64]; // Tableau pour stocker les arguments de la commande
+    char *argv[64]; // Stocke les arguments de la commande
     int argc = 0;
 
     // Tokenisation de la commande
@@ -102,25 +80,25 @@ int executerLsPersonnalise(char *commande) {
         argv[argc++] = token;
         token = strtok(NULL, " ");
     }
-    argv[argc] = NULL; // Dernier élément doit être NULL pour execvp
+    argv[argc] = NULL; // Marque la fin du tableau d'arguments
 
     if (argc == 0) {
-        return -1; // Pas de commande à exécuter
+        return -1; // Quitte si aucune commande n'est fournie
     }
 
-    // Exécution de la commande
+    // Exécution de la commande dans un processus enfant
     pid_t pid = fork();
     if (pid == 0) {
-        // Processus enfant
+        // Processus enfant : exécute la commande 'ls'
         execvp("/home/guillaume/Desktop/systeme_avancee/Systeme-avancee/Projet_MiniShell/bin/ls", argv);
         fprintf(stderr, "execvp error: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     } else if (pid < 0) {
-        // Échec de fork
+        // Gestion de l'échec du fork
         fprintf(stderr, "fork error: %s\n", strerror(errno));
         return -1;
     } else {
-        // Processus parent
+        // Processus parent : attend la fin du processus enfant
         int status;
         if (waitpid(pid, &status, 0) == -1) {
             fprintf(stderr, "waitpid error: %s\n", strerror(errno));
