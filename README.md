@@ -36,6 +36,15 @@ Le projet MiniShell est une implémentation simplifiée d'un shell Unix, réalis
 
 Une documentation complète du code a été générée à l'aide de Doxygen. Elle offre un aperçu détaillé de chaque fonction, structure et dépendance utilisée dans le projet. Vous pouvez consulter cette documentation dans le répertoire `Projet_MiniShell/doc`. Elle est disponible sous forme HTML et LaTeX pour une consultation facile.
 
+## 🔍 Difficultés rencontrées
+
+- **Gestion des pipes**: La mise en œuvre des pipes pour connecter la sortie d'une commande à l'entrée d'une autre s'est avérée complexe, notamment pour gérer correctement les cas d'arrière-plan. La synchronisation et la gestion des différents états du shell ont représenté un défi important. (Cette partie n'a pas été finalisé).
+- **Structure du projet**: La conception initiale de la structure du projet nous a posé quelques problèmes. La structure est devenue assez dense et quelque peu bancale au fur et à mesure que de nouvelles fonctionnalités étaient ajoutées. Cela a nécessité des ajustements constants pour maintenir la cohérence et l'efficacité.
+
+## 🛠️ Choix de conception
+
+- **Un fichier par commande**: Nous avons opté pour une structure où chaque commande est implémentée dans un fichier séparé (par exemple `date.c`, `ls.c`). Ce choix a été guidé par le désir de maintenir le code organisé et modulaire. Cela facilite la maintenance et le test de chaque commande individuellement, bien que cela ait ajouté une complexité initiale lors de l'établissement de la structure de projet globale.
+
 ## 👥 Auteurs
 
 - [Guillaume](https://github.com/guillaume356) 👨‍💻
